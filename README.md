@@ -4,6 +4,10 @@ United health care lets you download claims data. We use the default name `Medic
 
 These utilities read that data and create transactions in Moneydance in the providers accounts.
 
+![System Diagram](system-diagram.png)
+
+
+
 This runs mostly outside of moneydance, but to prepare the list of providers, run 
 
 `list-medical-providers.py` 
