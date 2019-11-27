@@ -13,7 +13,8 @@ import java.util.ArrayList
 fileDir = "/Users/george/Downloads/"
 bridgeFile = 'med-claims.pkl'
 doSave = True # False allows dry run
-
+if not doSave:
+  print("Dry run - will not save")
 # get the input data
 with open(fileDir+bridgeFile,'rb') as F:
   input = pickle.load(F)
@@ -29,28 +30,31 @@ def markWithTag(otxn,modTag):
 
 # rows are [account,category,dt,val,description,patient]
 book = moneydance.getCurrentAccountBook()
+accts = set()
 i=0
 for row in input:
-  if i<2:
-    acct = book.getRootAccount().getAccountByName(row[0])
-    cat =book.getRootAccount().getAccountByName(row[1])
-    if cat is None:
-      raise ValueError ('No such category: %s' % row[1])
+  accts.add(row[0])
+  acct = book.getRootAccount().getAccountByName(row[0])
+  cat =book.getRootAccount().getAccountByName(row[1])
+  if cat is None:
+    raise ValueError ('No such category: %s' % row[1])
 
-    parent= ParentTxn(book)
-    parent.setAccount(acct)
-    parent.setDateInt(row[2])
-    parent.setTaxDateInt(row[2]) # otherwise it shows zeros
-    parent.setDescription(row[4])
-    parent.setMemo("From med-ins-bridge")
-    
-    split=SplitTxn.makeSplitTxn(parent,row[3],row[3],1,cat,row[4],0,parent.getStatus())
-    markWithTag(split,row[5])
-    parent.addSplit(split)
-    print (parent)
-    i=i+1
-    if doSave:
-      parent.syncItem()
- 
+  parent= ParentTxn(book)
+  parent.setAccount(acct)
+  parent.setDateInt(row[2])
+  parent.setTaxDateInt(row[2]) # otherwise it shows zeros
+  parent.setDescription(row[4])
+  parent.setMemo("From med-ins-bridge")
   
+  split=SplitTxn.makeSplitTxn(parent,row[3],row[3],1,cat,row[4],0,parent.getStatus())
+  markWithTag(split,row[5])
+  parent.addSplit(split)
+  
+  if doSave:
+    parent.syncItem()
+    i=i+1
+ 
+print ("Added %d transactions to the following accounts: "% i)
+for a in accts:
+  print (a)
   
