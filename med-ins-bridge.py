@@ -10,7 +10,7 @@ import time
 import pickle
 import java.util.ArrayList
 
-fileDir = "/Users/george/Downloads/"
+fileDir = '/Users/george/argus/med-ins/'
 bridgeFile = 'med-claims.pkl'
 doSave = True # False allows dry run
 if not doSave:

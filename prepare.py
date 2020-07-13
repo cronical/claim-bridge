@@ -12,14 +12,15 @@ verbose = False
 
 #config
 tempFileDir = '/Users/george/Downloads/'
+bridgeFileDir = '/Users/george/argus/med-ins/'
 claimsFile="MedicalClaimSummary.csv"
 providerFile="existing-providers.csv"
 bridgeFile="med-claims.pkl"
 
 print "Using claims file: %s"% claimsFile
-claims = pd.read_csv(tempFileDir + claimsFile,parse_dates=[2,7])
+claims = pd.read_csv(tempFileDir + claimsFile,dtype={'Claim_Number' : 'str'},parse_dates=[2,8])
 for col in ('Amount Billed','Deductible','Your Plan','Plan Discount','Your Responsibility','Paid at Visit/Pharmacy','You Owe'):
-  claims[col] = claims[col].str.replace(r'$', '').astype(float)
+  claims[col] = claims[col].str.replace(r'$', '').str.replace(r',', '').astype(float)
 claims['Visited Provider']=claims['Visited Provider'].str.upper()
   
 claims.columns = [c.replace(' ', '_') for c in claims.columns]
@@ -36,6 +37,7 @@ if not all(found):
     if not found[i]:
       print p
 if all(found):
+  print claims
   output = []
   merged = pd.merge(claims,existing,how="left", left_on='Visited_Provider',right_on='PROVIDER')
 
@@ -74,8 +76,8 @@ if all(found):
   if verbose:
     for o in output:
       print (o)
-  F=open(tempFileDir+bridgeFile,'wb')
+  F=open(bridgeFileDir+bridgeFile,'wb')
   import pickle
   pickle.dump(output,F)
   F.close()
-  print ("%d records written to %s"% (len(output),tempFileDir+bridgeFile))
+  print ("%d records written to %s"% (len(output),bridgeFileDir+bridgeFile))

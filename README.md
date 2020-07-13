@@ -16,7 +16,7 @@ The first row of that field should contain the full category path and the non-un
 
 ### Steps
 
-1. The UHG claims portal allows creating a filtered set of claims, which can be downloaded.  
+1. The UHG claims portal allows creating a filtered set of claims, which can be downloaded.  It must be named: `MedicalClaimSummary.csv`.  Thus best to delete it when done so the browser does not add `(1)`.  Note, if you edit the file with Excel - watch out so the claim numbers don't get represented as exponential notation as excel saves them that way.  To select only certain dates it is probably better to filter on the website by date.
 2. To prepare the list of providers currently in Moneydance, run `list-medical-providers.py` inside moneydance.  This puts a csv file in the working directory.
 3. The main program is `prepare.py`. It looks for its input file in the Downloads folder and the provider list in the current directory.  It verifies that the providers match before writing the .pkl file.
 4. Back in Moneydance run `med-ins-bridge.py`
