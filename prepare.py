@@ -66,7 +66,7 @@ if all(found):
     amt_billed=row['Amount_Billed']
     paid=-row['Your_Plan']
     adj=-row['Plan_Discount']
-    cat_stub=row['Claim_Type']
+    cat_stub=row['CAT-STUB']
     if amt_billed != 0:
       add_entry(account,cat_stub+" Chg",visit_date,amt_billed,claim_no,patient)
     if adj!= 0:
@@ -76,8 +76,10 @@ if all(found):
   if verbose:
     for o in output:
       print (o)
+  for o in output:
+    print(o)
   F=open(bridgeFileDir+bridgeFile,'wb')
   import pickle
-  pickle.dump(output,F)
+  pickle.dump(output,F,protocol=2)
   F.close()
   print ("%d records written to %s"% (len(output),bridgeFileDir+bridgeFile))
