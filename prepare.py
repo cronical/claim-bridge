@@ -17,7 +17,7 @@ claimsFile="MedicalClaimSummary.csv"
 providerFile="existing-providers.csv"
 bridgeFile="med-claims.pkl"
 
-print "Using claims file: %s"% claimsFile
+print ("Using claims file: %s"% claimsFile)
 claims = pd.read_csv(tempFileDir + claimsFile,dtype={'Claim_Number' : 'str'},parse_dates=[2,8])
 for col in ('Amount Billed','Deductible','Your Plan','Plan Discount','Your Responsibility','Paid at Visit/Pharmacy','You Owe'):
   claims[col] = claims[col].str.replace(r'$', '').str.replace(r',', '').astype(float)
@@ -27,7 +27,7 @@ claims.columns = [c.replace(' ', '_') for c in claims.columns]
 claims=claims.sort_values(by='Date_Visited') #
 providers=[x.upper() for x in claims.Visited_Provider.unique()]
 
-existing = pd.read_csv(providerFile,sep='\t')
+existing = pd.read_csv(bridgeFileDir+providerFile,sep='\t')
 existing_providers= existing.PROVIDER.to_numpy()
 found = [x in existing_providers for x in providers]
 
@@ -35,9 +35,9 @@ if not all(found): print ("Provider not found, create in MD first, then re expor
 if not all(found):
   for i,p in enumerate(providers):
     if not found[i]:
-      print p
+      print (p)
 if all(found):
-  print claims
+  print (claims)
   output = []
   merged = pd.merge(claims,existing,how="left", left_on='Visited_Provider',right_on='PROVIDER')
 
@@ -66,7 +66,7 @@ if all(found):
     amt_billed=row['Amount_Billed']
     paid=-row['Your_Plan']
     adj=-row['Plan_Discount']
-    cat_stub=row['CAT-STUB']
+    cat_stub=row['Claim_Type']
     if amt_billed != 0:
       add_entry(account,cat_stub+" Chg",visit_date,amt_billed,claim_no,patient)
     if adj!= 0:
