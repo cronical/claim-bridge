@@ -29,6 +29,7 @@ providers=[x.upper() for x in claims.Visited_Provider.unique()]
 
 existing = pd.read_csv(bridgeFileDir+providerFile,sep='\t')
 existing_providers= existing.PROVIDER.to_numpy()
+existing_providers=np.append(existing_providers,['PHARMACY']) # generic vendor, we will ignore later
 found = [x in existing_providers for x in providers]
 
 if not all(found): print ("Provider not found, create in MD first, then re export")
@@ -58,26 +59,25 @@ if all(found):
 
       
   for i, row in merged.iterrows():
-    claim_no="Claim #: "+row['Claim_Number']
-    account= row['PARENT'] +":"+ row['Visited_Provider']
-    patient=row['Patient_Name']
-    visit_date=row['Date_Visited']
-    process_date=row['Date_Processed']
-    amt_billed=row['Amount_Billed']
-    paid=-row['Your_Plan']
-    adj=-row['Plan_Discount']
-    cat_stub=row['CAT-STUB']
-    if amt_billed != 0:
-      add_entry(account,cat_stub+" Chg",visit_date,amt_billed,claim_no,patient)
-    if adj!= 0:
-      add_entry(account,cat_stub+" Ins Adj",process_date,adj,claim_no,patient)
-    if paid!= 0:
-      add_entry(account,cat_stub+" Ins Adj",process_date,paid,claim_no,patient)
+    if row['Visited_Provider'] != 'PHARMACY':
+      claim_no="Claim #: "+row['Claim_Number']
+      account= row['PARENT'] +":"+ row['Visited_Provider']
+      patient=row['Patient_Name']
+      visit_date=row['Date_Visited']
+      process_date=row['Date_Processed']
+      amt_billed=row['Amount_Billed']
+      paid=-row['Your_Plan']
+      adj=-row['Plan_Discount']
+      cat_stub=row['CAT-STUB']
+      if amt_billed != 0:
+        add_entry(account,cat_stub+" Chg",visit_date,amt_billed,claim_no,patient)
+      if adj!= 0:
+        add_entry(account,cat_stub+" Ins Adj",process_date,adj,claim_no,patient)
+      if paid!= 0:
+        add_entry(account,cat_stub+" Ins Adj",process_date,paid,claim_no,patient)
   if verbose:
     for o in output:
-      print (o)
-  for o in output:
-    print(o)
+      print (o) 
   F=open(bridgeFileDir+bridgeFile,'wb')
   import pickle
   pickle.dump(output,F,protocol=2)

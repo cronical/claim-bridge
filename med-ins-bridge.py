@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Python script to be run in Moneydance 
 
-from com.infinitekind.moneydance.model import *
+from com.infinitekind.moneydance.model import * ;
 from com.infinitekind.moneydance.model import ParentTxn
 from com.infinitekind.moneydance.model import SplitTxn
 
