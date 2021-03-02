@@ -61,7 +61,7 @@ if all(found):
   for i, row in merged.iterrows():
     if row['Visited_Provider'] != 'PHARMACY':
       claim_no="Claim #: "+row['Claim_Number']
-      account= row['PARENT'] +":"+ row['Visited_Provider']
+      account= row['GRANDPARENT']+":"+row['PARENT'] +":"+ row['Visited_Provider']
       patient=row['Patient_Name']
       visit_date=row['Date_Visited']
       process_date=row['Date_Processed']

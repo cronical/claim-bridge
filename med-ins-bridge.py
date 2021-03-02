@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Python script to be run in Moneydance 
 
-from com.infinitekind.moneydance.model import * ;
+from com.infinitekind.moneydance.model import * 
 from com.infinitekind.moneydance.model import ParentTxn
 from com.infinitekind.moneydance.model import SplitTxn
 
@@ -35,6 +35,8 @@ i=0
 for row in input:
   accts.add(row[0])
   acct = book.getRootAccount().getAccountByName(row[0])
+  if acct is None:
+    print('not getting a account for "%s"'%row[0])
   cat =book.getRootAccount().getAccountByName(row[1])
   if cat is None:
     raise ValueError ('No such category: %s' % row[1])
