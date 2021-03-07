@@ -42,7 +42,10 @@ if all(found):
   print (claims)
   output = []
   merged = pd.merge(claims,existing,how="left", left_on='Visited_Provider',right_on='PROVIDER')
-
+  last_processed = '{}\n'.format(claims['Date_Processed'].max())[0:10] 
+  with open('last_processed','w') as f:
+    f.write(last_processed)
+  
   def dateToInt(aDate):
     return(aDate.year * 10000)+(aDate.month*100)+aDate.day
 
