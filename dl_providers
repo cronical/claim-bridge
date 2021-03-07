@@ -1,0 +1,3 @@
+#!/bin/zsh
+awk -F "," '//{print $4}' /Users/george/Downloads/MedicalClaimSummary.csv | tail -n +2 | sort | uniq
+

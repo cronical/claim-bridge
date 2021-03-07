@@ -25,6 +25,7 @@ claims['Visited Provider']=claims['Visited Provider'].str.upper()
   
 claims.columns = [c.replace(' ', '_') for c in claims.columns]
 claims=claims.sort_values(by='Date_Visited') #
+claims=claims.loc[claims['Claim_Status']!='In Process'] # ignore inprocess items
 providers=[x.upper() for x in claims.Visited_Provider.unique()]
 
 existing = pd.read_csv(bridgeFileDir+providerFile,sep='\t')
@@ -32,7 +33,7 @@ existing_providers= existing.PROVIDER.to_numpy()
 existing_providers=np.append(existing_providers,['PHARMACY']) # generic vendor, we will ignore later
 found = [x in existing_providers for x in providers]
 
-if not all(found): print ("Provider not found, create in MD first, then re export")
+if not all(found): print ("Provider(s) not found, create in MD first, then re export")
 if not all(found):
   for i,p in enumerate(providers):
     if not found[i]:
