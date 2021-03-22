@@ -28,6 +28,16 @@ claims=claims.sort_values(by='Date_Visited') #
 claims=claims.loc[claims['Claim_Status']!='In Process'] # ignore inprocess items
 providers=[x.upper() for x in claims.Visited_Provider.unique()]
 
+# ability to handle data errors on the names from the insurer:
+import json
+with open('alias.json') as f: alias=json.load(f)
+ak= alias.keys()
+for x in range(len(providers)): 
+  p=providers[x]
+  if p in ak:
+    claims.loc[claims.Visited_Provider == p,'Visited_Provider']=alias[p]
+    print ("Substituted alias {} for {}".format(alias[p],p))
+providers=[x.upper() for x in claims.Visited_Provider.unique()]
 existing = pd.read_csv(bridgeFileDir+providerFile,sep='\t')
 existing_providers= existing.PROVIDER.to_numpy()
 existing_providers=np.append(existing_providers,['PHARMACY']) # generic vendor, we will ignore later
@@ -42,7 +52,7 @@ if all(found):
   print (claims)
   output = []
   merged = pd.merge(claims,existing,how="left", left_on='Visited_Provider',right_on='PROVIDER')
-  last_processed = '{}\n'.format(claims['Date_Processed'].max())[0:10] 
+  last_processed = '{}\n'.format(claims['Date_Visited'].max())[0:10] # its my last processed date, which is UHC's visit date.
   with open('last_processed','w') as f:
     f.write(last_processed)
   
