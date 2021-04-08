@@ -16,6 +16,7 @@ bridgeFileDir = '/Users/george/argus/med-ins/'
 claimsFile="MedicalClaimSummary.csv"
 providerFile="existing-providers.csv"
 bridgeFile="med-claims.pkl"
+last_processed_file='last_processed'
 
 print ("Using claims file: %s"% claimsFile)
 claims = pd.read_csv(tempFileDir + claimsFile,dtype={'Claim_Number' : 'str'},parse_dates=[2,8])
@@ -26,6 +27,12 @@ claims['Visited Provider']=claims['Visited Provider'].str.upper()
 claims.columns = [c.replace(' ', '_') for c in claims.columns]
 claims=claims.sort_values(by='Date_Visited') #
 claims=claims.loc[claims['Claim_Status']!='In Process'] # ignore inprocess items
+
+ld=pd.read_csv('last_processed',parse_dates=[0],header=None)
+claims = claims.loc[claims.Date_Processed > ld.loc[0,0]]
+lds='{}'.format(ld.loc[0,0])[0:10]
+print ("Ignoring claims on or before {}".format(lds))
+
 providers=[x.upper() for x in claims.Visited_Provider.unique()]
 
 # ability to handle data errors on the names from the insurer:
@@ -52,10 +59,12 @@ if all(found):
   print (claims)
   output = []
   merged = pd.merge(claims,existing,how="left", left_on='Visited_Provider',right_on='PROVIDER')
-  last_processed = '{}\n'.format(claims['Date_Visited'].max())[0:10] # its my last processed date, which is UHC's visit date.
-  with open('last_processed','w') as f:
-    f.write(last_processed)
-  
+
+  if 0 < claims.shape[0]: # update the last processed date if there are any remaining rows
+    last_processed = '{}\n'.format(claims['Date_Processed'].max())[0:10] # its UHC's process date.
+    with open(last_processed_file,'w') as f:
+      f.write(last_processed)
+    
   def dateToInt(aDate):
     return(aDate.year * 10000)+(aDate.month*100)+aDate.day
 
