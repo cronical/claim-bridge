@@ -2,3 +2,4 @@
 *.pkl
 .vscode
 last_processed
+alias.json

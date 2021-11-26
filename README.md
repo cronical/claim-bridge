@@ -10,7 +10,7 @@ There are 3 python programs, two of which run in Moneydance in the "MoneyBot Con
 
 ###Moneydance Set-up and Conventions
 
-The expectation is that each medical provider has a liability account, which is named identically to the name that UHG uses.  These are expected to be sub-accounts of "Medical Providers".  Each of these accounts has a special comment (the only field available) to help the program set the correct category. In order to know the category to use, data is captured on the first row of the comment field of each provider
+The expectation is that each medical provider has a liability account, which is named identically to the name that UHG uses.  A provision is made for aliases, though.  These are expected to be sub-accounts of "Medical Providers".  Each of these accounts has a special comment (the only field available) to help the program set the correct category. In order to know the category to use, data is captured on the first row of the comment field of each provider
 
 The first row of that field should contain the full category path and the non-unique part of the final element. So `X:Health:Maj-med:Tests:Test` is used for a test vendor such as Quest.  The program adds the last bit which is one of 'chg', 'ins adj' or 'ins pmt'.
 
@@ -22,7 +22,7 @@ X:Health:Maj-med:Tests:Test  <br/>X:Health:Maj-med:Doctor:MD<br/>X:Health:Maj-me
 
 1. Remove `MedicalClaimSummary.csv` from the Downloads folder. So that browser does not add `(1)`. 
 
-2. Inspect the file `last_processed`. It should hold the data of the latest processing date from the last time the prepare.py ran.  If it seems right, proceed, otherwise change it.  This will be used to filter the downloaded items.
+2. Inspect the file `last_processed`. It should hold the data of the latest processing date from the last time the prepare.py ran.  If it seems right, proceed, otherwise change it.  This will be used to filter the downloaded items. (See To Do, below).
 
 3. Download from he UHG claims portal.  Got to the Claims and Accounts -> Claims. Use the ability to create a filtered set of claims.   It will be named: `MedicalClaimSummary.csv`.   
 
@@ -36,7 +36,10 @@ X:Health:Maj-med:Tests:Test  <br/>X:Health:Maj-med:Doctor:MD<br/>X:Health:Maj-me
    ./dl_providers
    ```
 
-5. Add any needed accounts in Moneydance
+5. Ensure references to providers are clean.  Note: the downloaded values are converted to upper case before processing.  Either:
+
+   1. Add any needed accounts in Moneydance
+   2. Add aliases to `alias.json`. If the provider in the download is found in the `JSON` keys then it will be replace by its value during processing by `prepare.py`
 
 6. To prepare the list of providers currently in Moneydance, run `list-medical-providers.py` inside moneydance.  This puts a csv file in the working directory.
 
@@ -63,4 +66,6 @@ Ignoring claims on or before 2021-03-19
 
 The JSON file `alias.json` lists invalid provider names that need to be translated.  This allows for practice particpants to be mapped to a central billing entity as well has cases where the insurer has the name wrong.
 
-
+## To Do
+1. The last processed date is singular, it really should have one date for each UHC account.
+1. prepare.py should gracefully handle case when moneydance account comment is not set instead of throwing error `TypeError: unsupported operand type(s) for +: 'float' and 'str'` around line 96.
