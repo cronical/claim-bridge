@@ -17,6 +17,7 @@ claimsFile="MedicalClaimSummary.csv"
 providerFile="existing-providers.csv"
 bridgeFile="med-claims.pkl"
 last_processed_file='last_processed'
+diagnostic_data_file='diagnostic_data.csv'
 
 print ("Using claims file: %s"% claimsFile)
 claims = pd.read_csv(tempFileDir + claimsFile,dtype={'Claim_Number' : 'str'},parse_dates=[2,8])
@@ -59,12 +60,11 @@ if all(found):
   print (claims)
   output = []
   merged = pd.merge(claims,existing,how="left", left_on='Visited_Provider',right_on='PROVIDER')
-
+  merged.to_csv(diagnostic_data_file)
+  print ('Data table written to %s, in case you need it' % diagnostic_data_file)
   if 0 < claims.shape[0]: # update the last processed date if there are any remaining rows
     last_processed = '{}\n'.format(claims['Date_Processed'].max())[0:10] # its UHC's process date.
-    with open(last_processed_file,'w') as f:
-      f.write(last_processed)
-    
+
   def dateToInt(aDate):
     return(aDate.year * 10000)+(aDate.month*100)+aDate.day
 
@@ -97,7 +97,7 @@ if all(found):
       if adj!= 0:
         add_entry(account,cat_stub+" Ins Adj",process_date,adj,claim_no,patient)
       if paid!= 0:
-        add_entry(account,cat_stub+" Ins Adj",process_date,paid,claim_no,patient)
+        add_entry(account,cat_stub+" Ins Pmt",process_date,paid,claim_no,patient)
   if verbose:
     for o in output:
       print (o) 
@@ -106,3 +106,6 @@ if all(found):
   pickle.dump(output,F,protocol=2)
   F.close()
   print ("%d records written to %s"% (len(output),bridgeFileDir+bridgeFile))
+  with open(last_processed_file,'w') as f:
+    f.write(last_processed)
+    print("Last processed date written as %s"% last_processed)
