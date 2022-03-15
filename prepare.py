@@ -104,7 +104,8 @@ if all(found):
       adj=-row['Plan_Discount']
       cat_stub=row['CAT-STUB']
       if pd.isna(cat_stub):
-        cat_stub=''
+        print('Provider %s does not have an account stub in its comment field. Skipping...'%row['Visited_Provider'])
+        continue
       if amt_billed != 0:
         add_entry(account,cat_stub+" Chg",visit_date,amt_billed,claim_no,patient)
       if adj!= 0:

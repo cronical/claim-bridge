@@ -15,8 +15,13 @@ The expectation is that each medical provider has a liability account, which is 
 The first row of that field should contain the full category path and the non-unique part of the final element. So `X:Health:Maj-med:Tests:Test` is used for a test vendor such as Quest.  The program adds the last bit which is one of 'chg', 'ins adj' or 'ins pmt'.
 
 ### Valid bases
-
-X:Health:Maj-med:Tests:Test  <br/>X:Health:Maj-med:Doctor:MD<br/>X:Health:Maj-med:Drugs:Rx<br/>X:Health:Dentist:DDS<br/>X:Health:Vision:Lens
+```
+X:Health:Maj-med:Tests:Test
+X:Health:Maj-med:Doctor:MD
+X:Health:Maj-med:Drugs:Rx
+X:Health:Dentist:DDS
+X:Health:Vision:Lens
+```
 
 ### Steps
 
@@ -34,7 +39,7 @@ X:Health:Maj-med:Tests:Test  <br/>X:Health:Maj-med:Doctor:MD<br/>X:Health:Maj-me
 
    ```bash
    ./dl_providers
-   ```
+````
 
 6. To prepare the list of providers currently in Moneydance, run `list-medical-providers.py` inside moneydance.  This puts a csv file in the working directory.
 
