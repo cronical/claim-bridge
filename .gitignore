@@ -3,3 +3,4 @@
 .vscode
 last_processed
 alias.json
+.venv/**

@@ -22,7 +22,7 @@ X:Health:Maj-med:Tests:Test  <br/>X:Health:Maj-med:Doctor:MD<br/>X:Health:Maj-me
 
 1. Remove `MedicalClaimSummary.csv` from the Downloads folder. So that browser does not add `(1)`. 
 
-2. Inspect the file `last_processed`. It should hold the data of the latest processing date from the last time the prepare.py ran.  If it seems right, proceed, otherwise change it.  This will be used to filter the downloaded items. (See To Do, below).
+2. Inspect the file `last_processed.json`. It stores the processing dates from the last time the prepare.py ran for an account.  If it seems right, proceed, otherwise change it.  This will be used to filter the downloaded items. 
 
 3. Download from he UHG claims portal.  Got to the Claims and Accounts -> Claims. Use the ability to create a filtered set of claims.   It will be named: `MedicalClaimSummary.csv`.   
 
@@ -36,14 +36,14 @@ X:Health:Maj-med:Tests:Test  <br/>X:Health:Maj-med:Doctor:MD<br/>X:Health:Maj-me
    ./dl_providers
    ```
 
+6. To prepare the list of providers currently in Moneydance, run `list-medical-providers.py` inside moneydance.  This puts a csv file in the working directory.
+
 5. Ensure references to providers are clean.  Note: the downloaded values are converted to upper case before processing.  Either:
 
    1. Add any needed accounts in Moneydance
    2. Add aliases to `alias.json`. If the provider in the download is found in the `JSON` keys then it will be replace by its value during processing by `prepare.py`
 
-6. To prepare the list of providers currently in Moneydance, run `list-medical-providers.py` inside moneydance.  This puts a csv file in the working directory.
-
-7. The main program is `prepare.py`. It looks for its input file in the Downloads folder and the provider list in the current directory.  It verifies that the providers match before writing the .pkl file. Ignores generic vendor, 'PHARMACY' and in process claims. It will display 
+7. The main program is `prepare.py`. It is invoked with the name of the account to process (I use the account owners initials). It looks for its input file in the Downloads folder and the provider list in the current directory.  It verifies that the providers match before writing the .pkl file. Ignores generic vendor, 'PHARMACY' and in process claims. It will display 
 
 ```
 Using claims file: MedicalClaimSummary.csv
@@ -56,8 +56,6 @@ Ignoring claims on or before 2021-03-19
 6 records written to /Users/george/argus/med-ins/med-claims.pkl
 ```
 
-
-
 8. Back in Moneydance run `med-ins-bridge.py`
 
 
@@ -67,5 +65,5 @@ Ignoring claims on or before 2021-03-19
 The JSON file `alias.json` lists invalid provider names that need to be translated.  This allows for practice particpants to be mapped to a central billing entity as well has cases where the insurer has the name wrong.
 
 ## To Do
-1. The last processed date is singular, it really should have one date for each UHC account.
-1. prepare.py should gracefully handle case when moneydance account comment is not set instead of throwing error `TypeError: unsupported operand type(s) for +: 'float' and 'str'` around line 96.
+1. Fix: prepare.py:37: FutureWarning: The default value of regex will change from True to False in a future version. In addition, single character regular expressions will *not* be treated as literal strings when regex=True.
+     claims[col] = claims[col].str.replace(r'$', '').str.replace(r',', '').astype(float)

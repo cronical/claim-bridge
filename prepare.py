@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 #
+import json
+from os import listdir
+
+import argparse
+from dateutil.parser import parse as date_parse
 import pandas as pd
-import datetime
 import numpy as np
 import decimal
-from os import listdir
 import pprint
 
 #parameters
@@ -16,9 +19,18 @@ bridgeFileDir = '/Users/george/argus/med-ins/'
 claimsFile="MedicalClaimSummary.csv"
 providerFile="existing-providers.csv"
 bridgeFile="med-claims.pkl"
-last_processed_file='last_processed'
+last_processed_file='last_processed.json'
 diagnostic_data_file='diagnostic_data.csv'
 
+with open(last_processed_file, 'r') as f:
+  acct_dates=json.load(f)
+
+parser=argparse.ArgumentParser('This program prepares UHC medical expense data for Moneydance')
+parser.add_argument('account',choices=list(acct_dates.keys()),help='provide the account identifier to process')
+args=parser.parse_args()
+acct=args.account
+last_processed=acct_dates[acct]
+print("Account %s was last processed on %s"%(acct,last_processed))
 print ("Using claims file: %s"% claimsFile)
 claims = pd.read_csv(tempFileDir + claimsFile,dtype={'Claim_Number' : 'str'},parse_dates=[2,8])
 for col in ('Amount Billed','Deductible','Your Plan','Plan Discount','Your Responsibility','Paid at Visit/Pharmacy','You Owe'):
@@ -29,10 +41,9 @@ claims.columns = [c.replace(' ', '_') for c in claims.columns]
 claims=claims.sort_values(by='Date_Visited') #
 claims=claims.loc[claims['Claim_Status']!='In Process'] # ignore inprocess items
 
-ld=pd.read_csv('last_processed',parse_dates=[0],header=None)
-claims = claims.loc[claims.Date_Processed > ld.loc[0,0]]
-lds='{}'.format(ld.loc[0,0])[0:10]
-print ("Ignoring claims on or before {}".format(lds))
+ld=date_parse(last_processed)
+claims = claims.loc[claims.Date_Processed > ld]
+print ("Ignoring claims on or before {}".format(last_processed))
 
 providers=[x.upper() for x in claims.Visited_Provider.unique()]
 
@@ -92,6 +103,8 @@ if all(found):
       paid=-row['Your_Plan']
       adj=-row['Plan_Discount']
       cat_stub=row['CAT-STUB']
+      if pd.isna(cat_stub):
+        cat_stub=''
       if amt_billed != 0:
         add_entry(account,cat_stub+" Chg",visit_date,amt_billed,claim_no,patient)
       if adj!= 0:
@@ -107,5 +120,6 @@ if all(found):
   F.close()
   print ("%d records written to %s"% (len(output),bridgeFileDir+bridgeFile))
   with open(last_processed_file,'w') as f:
-    f.write(last_processed)
-    print("Last processed date written as %s"% last_processed)
+    acct_dates[acct]=(last_processed)
+    json.dump(acct_dates,f)
+    print("Last processed date written to %s"% last_processed)
