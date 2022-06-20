@@ -2,6 +2,7 @@
 #
 import json
 from os import listdir
+import yaml
 
 import argparse
 from dateutil.parser import parse as date_parse
@@ -21,6 +22,7 @@ providerFile="existing-providers.csv"
 bridgeFile="med-claims.pkl"
 last_processed_file='last_processed.json'
 diagnostic_data_file='diagnostic_data.csv'
+valid_bases='valid_bases.yaml'
 
 with open(last_processed_file, 'r') as f:
   acct_dates=json.load(f)
@@ -68,9 +70,16 @@ if not all(found):
     if not found[i]:
       print (p)
 if all(found):
+  merged = pd.merge(claims,existing,how="left", left_on='Visited_Provider',right_on='PROVIDER')
+  with open(valid_bases,'r') as f:
+    bases=yaml.load(f,yaml.CLoader)
+  bad_bases=[x not in bases for x in merged['CAT-STUB'].to_list()]
+  if any(bad_bases):
+    print ("Not all categories are valid")
+    print (merged.loc[bad_bases,['Visited_Provider','Date_Visited','CAT-STUB']])
+    quit()
   print (claims)
   output = []
-  merged = pd.merge(claims,existing,how="left", left_on='Visited_Provider',right_on='PROVIDER')
   merged.to_csv(diagnostic_data_file)
   print ('Data table written to %s, in case you need it' % diagnostic_data_file)
   if 0 < claims.shape[0]: # update the last processed date if there are any remaining rows

@@ -63,8 +63,6 @@ Ignoring claims on or before 2021-03-19
 
 8. Back in Moneydance run `med-ins-bridge.py`
 
-
-
 ### Aliases
 
 The JSON file `alias.json` lists invalid provider names that need to be translated.  This allows for practice particpants to be mapped to a central billing entity as well has cases where the insurer has the name wrong.
